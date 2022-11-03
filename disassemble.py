@@ -58,8 +58,9 @@ def disassemble(code):
 		assert length >= 2 and length % 2 == 0
 		p += length
 	
+	# TODO: Display Branch Target labeling
+	# TODO: Count branches
 	# TODO: Determine register usage count
-
 	# Print stats to stderr
 	if num_wait_ins > 0:
 		print('    wait ', num_wait_ins, file=sys.stderr)
