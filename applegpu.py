@@ -395,7 +395,8 @@ def try_parse_register_tuple(s):
 SIMD_WIDTH = 32
 
 class AsmInstruction:
-	def __init__(self, mnem, operands=None):
+	def __init__(self, ins_name, mnem, operands=None):
+		self.ins_name = ins_name
 		self.mnem = mnem
 		self.operands = list(operands)
 
@@ -670,7 +671,7 @@ class InstructionDesc:
 		for operand in operands:
 			if isinstance(operand, RelativeOffset):
 				operand.base = pc
-		return AsmInstruction(mnem, operands)
+		return AsmInstruction(self.name, mnem, operands)
 
 	def fields_for_mnem(self, mnem, operand_strings):
 		if self.name == mnem:
@@ -5537,4 +5538,3 @@ def disassemble_n(n):
 def disassemble_bytes(b):
 	n = opcode_to_number(b)
 	return disassemble_n(n)
-
