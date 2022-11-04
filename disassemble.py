@@ -11,6 +11,7 @@ def disassemble(code):
 	skipping = False
 	num_f16_ins = 0
 	num_f32_ins = 0
+	num_jmp_ins = 0
 	num_wait_ins = 0
 	num_unknown_ins = 0
 	num_ins = 0
@@ -38,6 +39,8 @@ def disassemble(code):
 						num_f32_ins += 1
 					elif mnem.endswith('16'):
 						num_f16_ins += 1
+				elif mnem.startswith('jmp_'):
+					num_jmp_ins += 1
 				asm_str = str(asm)
 				if VERBOSE:
 					asm_str = asm_str.ljust(60) + '\t'
@@ -59,17 +62,21 @@ def disassemble(code):
 		p += length
 	
 	# TODO: Display Branch Target labeling
-	# TODO: Count branches
+	# TODO: Total Instruction Count
+	# TODO: Count device_load, device_store
+	# TODO: Count integer instructions (ex. iadd, icmpsel)
 	# TODO: Determine register usage count
 	# Print stats to stderr
-	if num_wait_ins > 0:
-		print('    wait ', num_wait_ins, file=sys.stderr)
-	if num_f32_ins > 0:
-		print('    f32  ', num_f32_ins, file=sys.stderr)
 	if num_f16_ins > 0:
-		print('    f16  ', num_f16_ins, file=sys.stderr)
+		print('    f16       ', num_f16_ins, file=sys.stderr)
+	if num_f32_ins > 0:
+		print('    f32       ', num_f32_ins, file=sys.stderr)
+	if num_jmp_ins > 0:
+		print('    branches  ', num_jmp_ins, file=sys.stderr)
+	if num_wait_ins > 0:
+		print('    wait      ', num_wait_ins, file=sys.stderr)
 	if num_unknown_ins > 0:
-		print('    unkn ', num_unknown_ins, file=sys.stderr)
+		print('    unkn      ', num_unknown_ins, file=sys.stderr)
 
 if __name__ == '__main__':
 	if len(sys.argv) > 1:
