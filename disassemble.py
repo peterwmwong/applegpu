@@ -9,6 +9,7 @@ def disassemble(code):
 	p = 0
 	end = False
 	skipping = False
+	num_device_loads_ins = 0
 	num_f16_ins = 0
 	num_f32_ins = 0
 	num_jmp_ins = 0
@@ -31,15 +32,15 @@ def disassemble(code):
 			if o.matches(n):
 				length = o.decode_size(n)
 				asm = o.disassemble(n, pc=p)
-				mnem = asm.mnem
-				if mnem == 'wait':
+				ins_name = asm.ins_name
+				if ins_name == 'wait':
 					num_wait_ins += 1
-				elif mnem.startswith('f'):
-					if mnem.endswith('32'):
+				elif ins_name.startswith('f'):
+					if ins_name.endswith('32'):
 						num_f32_ins += 1
-					elif mnem.endswith('16'):
+					elif ins_name.endswith('16'):
 						num_f16_ins += 1
-				elif mnem.startswith('jmp_'):
+				elif ins_name.startswith('jmp_'):
 					num_jmp_ins += 1
 				asm_str = str(asm)
 				if VERBOSE:
@@ -50,7 +51,7 @@ def disassemble(code):
 						fields = fields.ljust(85) + ' ' + str(rem)
 					asm_str += fields
 				print(asm_str)
-				if mnem == 'stop':
+				if ins_name == 'stop':
 					if STOP_ON_STOP:
 						end = True
 				break
@@ -65,6 +66,8 @@ def disassemble(code):
 	# TODO: Total Instruction Count
 	# TODO: Count device_load, device_store
 	# TODO: Count integer instructions (ex. iadd, icmpsel)
+	# TODO: Count bitwise instructions (ex. asr, asrh, bfeil, bfi, shrhi, shlhi)
+	# TODO: Count 'convert' instructions
 	# TODO: Determine register usage count
 	# Print stats to stderr
 	if num_f16_ins > 0:
