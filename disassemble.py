@@ -9,13 +9,7 @@ def disassemble(code):
 	p = 0
 	end = False
 	skipping = False
-	num_device_loads_ins = 0
-	num_f16_ins = 0
-	num_f32_ins = 0
-	num_jmp_ins = 0
-	num_wait_ins = 0
-	num_unknown_ins = 0
-	num_ins = 0
+	ins_counts = {}
 	while p < len(code) and not end:
 		n = applegpu.opcode_to_number(code[p:])
 		if not skipping and (n & 0xFFFFffff) == 0:
@@ -28,20 +22,12 @@ def disassemble(code):
 			else:
 				skipping = False
 		length = 2
+		ins_name = 'unkn'
 		for o in applegpu.instruction_descriptors:
 			if o.matches(n):
 				length = o.decode_size(n)
 				asm = o.disassemble(n, pc=p)
 				ins_name = asm.ins_name
-				if ins_name == 'wait':
-					num_wait_ins += 1
-				elif ins_name.startswith('f'):
-					if ins_name.endswith('32'):
-						num_f32_ins += 1
-					elif ins_name.endswith('16'):
-						num_f16_ins += 1
-				elif ins_name.startswith('jmp_'):
-					num_jmp_ins += 1
 				asm_str = str(asm)
 				if VERBOSE:
 					asm_str = asm_str.ljust(60) + '\t'
@@ -57,29 +43,20 @@ def disassemble(code):
 				break
 		else:
 			print('  <Disassembly Failed: address 0x%x' % p, 'instruction 0x%s>' % code[p:p+2].hex())
-			num_unknown_ins += 1
+		
+		ins_counts[ins_name] = ins_counts.get(ins_name, 0) + 1
 
 		assert length >= 2 and length % 2 == 0
 		p += length
 	
-	# TODO: Display Branch Target labeling
-	# TODO: Total Instruction Count
-	# TODO: Count device_load, device_store
-	# TODO: Count integer instructions (ex. iadd, icmpsel)
-	# TODO: Count bitwise instructions (ex. asr, asrh, bfeil, bfi, shrhi, shlhi)
-	# TODO: Count 'convert' instructions
-	# TODO: Determine register usage count
+	# TODO(1): Determine register usage count
+	# TODO(3): Display Branch Target labeling
+	
 	# Print stats to stderr
-	if num_f16_ins > 0:
-		print('    f16       ', num_f16_ins, file=sys.stderr)
-	if num_f32_ins > 0:
-		print('    f32       ', num_f32_ins, file=sys.stderr)
-	if num_jmp_ins > 0:
-		print('    branches  ', num_jmp_ins, file=sys.stderr)
-	if num_wait_ins > 0:
-		print('    wait      ', num_wait_ins, file=sys.stderr)
-	if num_unknown_ins > 0:
-		print('    unkn      ', num_unknown_ins, file=sys.stderr)
+	print('    {:16} {:4}'.format('TOTAL', sum(ins_counts.values())), file=sys.stderr)
+	print('    ---------------------', file=sys.stderr)
+	for key, value in sorted(ins_counts.items()):
+		print('    {:16} {:4}'.format(key, value), file=sys.stderr)
 
 if __name__ == '__main__':
 	if len(sys.argv) > 1:
