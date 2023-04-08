@@ -36,21 +36,21 @@ def disassemble(code):
 					if rem:
 						fields = fields.ljust(85) + ' ' + str(rem)
 					asm_str += fields
-				print(asm_str)
+				print('0x%X:' % p, asm_str)
 				if ins_name == 'stop':
 					if STOP_ON_STOP:
 						end = True
 				break
 		else:
-			print('  <Disassembly Failed: address 0x%x' % p, 'instruction 0x%s>' % code[p:p+2].hex())
+			print('0x%4X:' % p, code[p:p+2].hex().ljust(20), '<disassembly failed>')
 		
 		ins_counts[ins_name] = ins_counts.get(ins_name, 0) + 1
 
 		assert length >= 2 and length % 2 == 0
 		p += length
 	
+	# TODO(1): Display Branch Target labeling
 	# TODO(1): Determine register usage count
-	# TODO(3): Display Branch Target labeling
 	
 	# Print stats to stderr
 	print('    {:16} {:4}'.format('TOTAL', sum(ins_counts.values())), file=sys.stderr)
