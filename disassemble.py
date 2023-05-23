@@ -36,7 +36,8 @@ def disassemble(code):
 					if rem:
 						fields = fields.ljust(85) + ' ' + str(rem)
 					asm_str += fields
-				print('0x%X:' % p, asm_str)
+				# print('0x%X:' % p, asm_str)
+				print(asm_str)
 				if ins_name == 'stop':
 					if STOP_ON_STOP:
 						end = True
