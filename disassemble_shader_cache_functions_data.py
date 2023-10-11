@@ -39,6 +39,8 @@ def disassemble(code, shader_display_name):
 						fields = fields.ljust(85) + ' ' + str(rem)
 					asm_str += fields
 				# print('0x%X:' % p, asm_str)
+				# TODO(0): Parse out registers
+				# - Either dig through the asm.operands or regex it (`(\b|_)r[0-9][0-9]?`)
 				print(asm_str)
 				if ins_name == 'stop':
 					if STOP_ON_STOP:
